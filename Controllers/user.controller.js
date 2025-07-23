@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../Models/Userschema.js');
+const User = require('../models/Userschema');
 require('dotenv').config();
 const Secret = process.env.SecretToken;
 
@@ -10,7 +10,7 @@ const login = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        const isPasswordValid = await hash.compare(Password, user.Password);
+        const isPasswordValid = await hash.compare(Password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid password' });
         }
@@ -24,15 +24,15 @@ const login = async (req, res) => {
 }
 
 const SignUp = async(req, res) => {
-    const newUser = req.body;
+    const newUser = req.user;
 
     try{
         const Adduser = await User.create(newUser);
-        res.status(201).json({ message: 'User created successfully', AddedUser: Adduser, data: await UserModel.find({newUser}) });
+        res.status(201).json({ message: 'User created successfully', AddedUser: Adduser, data: await User.find({newUser}) });
     }
     catch (error) {
         res.status(400).json({ message: 'Failed to create user', error });
     }
 }
 
-module.exports[login,SignUp];
+module.exports= {login,SignUp};

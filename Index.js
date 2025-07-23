@@ -11,10 +11,12 @@ const cors = require('cors');
 // app.set('view engine','pug');
 // app.set('views','./Views')
 
+app.use(express.json());
+
 app.use('/user', require('./Routes/user.routes'));
 
 
-mongoose.connect('mongodb://localhost:27017/LMS').then(() => {   // rewrite the DB name According to how u named it
+mongoose.connect('mongodb://localhost:27017/Project').then(() => {   // rewrite the DB name According to how u named it
     console.log('Connected to MongoDB');
 });
 
