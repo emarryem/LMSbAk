@@ -18,4 +18,4 @@ const studentSchema = new mongoose.Schema({
     }]
 });
 
-module.exports = User.discriminator("Student", studentSchema);
+module.exports = User.discriminator("student", studentSchema);

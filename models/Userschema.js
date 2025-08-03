@@ -7,7 +7,8 @@ const UserSchema = new Schema ({
     username: { 
         type: String , 
         minLength: 2 ,
-        required: true 
+        required: true ,
+        unique : true
     },
     email: { 
         type: String, 
@@ -20,9 +21,18 @@ const UserSchema = new Schema ({
     },
     role: { 
         type: String, 
-        enum: ['student', 'doctor' , 'admin'],
-        default: 'student', 
-        required: true 
+        enum: ["student", 'doctor' , 'admin'],
+        default: "student" 
+    },
+    otp: {
+        type: String
+    },
+    OTPExpiry: {
+        type: Date
+    },
+    IsVerified: {
+        type: Boolean,
+        default: false
     }
 } , {
     timestamps : true,

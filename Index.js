@@ -14,7 +14,8 @@ const cors = require('cors');
 app.use(express.json());
 
 app.use('/user', require('./Routes/user.routes'));
-
+app.use('/course', require('./Routes/course.routes'));
+app.use('/enrollment', require('./Routes/enrollment.routes'));
 
 mongoose.connect('mongodb://localhost:27017/Project').then(() => {   // rewrite the DB name According to how u named it
     console.log('Connected to MongoDB');

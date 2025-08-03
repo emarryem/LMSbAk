@@ -46,7 +46,11 @@ exports.authorize = (...roles) => {
 exports.SendOTP = async (req, res, next) => {
     try {
         const email = req.body.email; // Get email from request body
-        
+        const user = await userModel.findOne({email});
+        if (user && user.IsVerified) {
+            return res.status(400).json({ message: 'User already verified' });
+        }
+
         if (!email) {
             return res.status(400).json({ error: "Email is required" });
         }
@@ -71,33 +75,41 @@ exports.SendOTP = async (req, res, next) => {
             text: `Your OTP code is ${genOtp}. Please use this code to verify your account.`
         };
 
-        await transporter.sendMail(mailOptions);
         
-        req.otp = genOtp.toString();
-        req.user = req.body; // Store user data in request for later use
+        await transporter.sendMail(mailOptions);
+        user.otp = genOtp.toString();
+        user.OTPExpiry = new Date(Date.now() + 3600000); 
+        await user.save(); 
        next();
         
     } catch (error) {
         console.error("OTP sending failed:", error);
-        res.status(500).json({ error: "Failed to send OTP" });
+        res.status(500).json({ error: "Failed to send OTP" , error: error.message });
     }
 };
 
 exports.verifyOTP = async (req, res,next) => {
-    const { otp } = req.body;
-    
+    const { email, otp } = req.body;
+    const user = await userModel.findOne({ email });
+    if (!user) {
+        return res.status(404).json({ error: "User not found" });
+    }
     if (!otp) {
         return res.status(400).json({ error: "OTP is required" });
     }
 
-    if (otp !== req.otp) {
-        return res.status(400).json({ error: "Invalid OTP or email" });
+    if (otp !== user.otp || new Date() > user.OTPExpiry) {
+        return res.status(400).json({ error: "Invalid OTP or expired" });
     }
 
     try {
-        // Proceed with user creation or login
-        res.status(200).json({ message: "OTP verified successfully", user });
+        res.status(200).json({ message: "OTP verified successfully" });
+        user.IsVerified = true;
+        user.otp = null;
+        user.OTPExpiry = null;
+        await user.save();
         next();
+
     } catch (error) {
         console.log("Error verifying OTP:", error);
         res.status(500).json({ error: "Failed to verify OTP" });
